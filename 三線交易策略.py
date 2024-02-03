@@ -148,3 +148,34 @@ def Recording(time, price, BS, num):
     record_df.at[index_count, "price"] = price
     record_df.at[index_count, "BS"] = BS
     record_df.at[index_count, "num"] = num
+
+def get_tech(df):
+    #以隔天開盤價當作成交價格
+    df["成交價格"] = df["開盤價"].shift(-1)
+    #最後一天以收盤價當作交易價格
+    df["成交價格"].fillna(method = "ffill", inplace = True)
+    #計算短期均線(5日均線)
+    df["MA_short"] = talib.SMA(df["收盤價"], 5)
+    #計算中期均線(20日)
+    df["MA_medium"] = talib.SMA(df["收盤價"], 20)
+    #計算長期均線(60日)
+    df["MA_long"] = talib.SMA(df["收盤價"], 60)
+    #平均交易量
+    df["Volume_mean"] = talib.SMA(df["成交量"], 20)
+    df = df.dropna()
+    return df
+
+df = get_data( stock_id = 2603)
+
+df = get_tech(df)
+
+train_data, test_data = split_data(data = df, train_part = 0.7)
+
+train_record = trade(train_data, cash)
+test_record = trade(test_data, cash)
+
+train_KPI = proc_KPI(train_record, cash, fee_rate, tax_rate)
+test_KPI = proc_KPI(test_record, cash, fee_rate, tax_rate)
+
+print(train_KPI)
+print(test_KPI)
