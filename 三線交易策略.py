@@ -33,17 +33,19 @@ def trade(data_df, cash):
             
             #買入條件
             Buy_condition = [
-                row["MA_short"] > row["MA_medium"],
-                row["MAmedium"] > row["MA_long"],
-                row["成交量"] > (row["Volume_mean"] * 1.5)
+                row["RSI"] > row["high_RSI"],
+                row["MA_5"] > row["MA_10"],
+                row["MA_10"] > row["MA_20"],
+                row["成交量"] > (row["Volume_5MA"] * 1.5)
             ]
             #賣出條件
             Sell_condition = [
-                row["MA_short"] < row["MA_medium"],
-                row["MA_medium"] < row["MA_long"],
-                row["成交量"] > (row["Volume_mean"] * 1.5)
+                row["RSI"] < row["low_RSI"],
+                row["MA_5"] < row["MA_10"],
+                row["MA_10"] < row["MA_20"],
+                row["成交量"] > (row["Volume_5MA"] * 1.5)
             ]
-            
+            #增加作多部位
             if all(Buy_condition):
                 trade_price = row["成交價格"]
                 
@@ -51,6 +53,7 @@ def trade(data_df, cash):
                 Recording(row["日期"], trade_price, "B", num)
                 
                 cash -= trade_price * num + fee
+            #增加放空部位
             elif all(Sell_condition):
                 trade_price = row["成交價格"]
                 num, fee = get_num_fee_hold(cash, trade_price, "S")
@@ -149,19 +152,25 @@ def Recording(time, price, BS, num):
     record_df.at[index_count, "BS"] = BS
     record_df.at[index_count, "num"] = num
 
-def get_tech(df):
+def get_tech(df, RSI_days, low_RSI, high_RSI):
     #以隔天開盤價當作成交價格
     df["成交價格"] = df["開盤價"].shift(-1)
     #最後一天以收盤價當作交易價格
     df["成交價格"].fillna(method = "ffill", inplace = True)
     #計算短期均線(5日均線)
-    df["MA_short"] = talib.SMA(df["收盤價"], 5)
-    #計算中期均線(20日)
-    df["MA_medium"] = talib.SMA(df["收盤價"], 20)
-    #計算長期均線(60日)
-    df["MA_long"] = talib.SMA(df["收盤價"], 60)
-    #平均交易量
-    df["Volume_mean"] = talib.SMA(df["成交量"], 20)
+    df["MA_5"] = talib.SMA(df["收盤價"], 5)
+    #計算中期均線(10日)
+    df["MA_10"] = talib.SMA(df["收盤價"], 10)
+    #計算長期均線(20日)
+    df["MA_20"] = talib.SMA(df["收盤價"], 20)
+    #五天平均交易量
+    df["Volume_5MA"] = talib.SMA(df["成交量"], 5)
+    #計算RSI(預設為14)
+    df["RSI"] = talib.RSI(df["收盤價"], timeperiod=RSI_days)
+    #低檔RSI標準
+    df["low_RSI"] = low_RSI
+    #高檔RSI標準
+    df["high_RSI"] = high_RSI
     df = df.dropna()
     return df
 
