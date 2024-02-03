@@ -35,13 +35,13 @@ def trade(data_df, cash):
             Buy_condition = [
                 row["MA_short"] > row["MA_medium"],
                 row["MAmedium"] > row["MA_long"],
-                row["成交量"] > (row["Volume_mean"] * 2)
+                row["成交量"] > (row["Volume_mean"] * 1.5)
             ]
             #賣出條件
             Sell_condition = [
                 row["MA_short"] < row["MA_medium"],
                 row["MA_medium"] < row["MA_long"],
-                row["成交量"] > (row["Volume_mean"] * 2)
+                row["成交量"] > (row["Volume_mean"] * 1.5)
             ]
             
             if all(Buy_condition):
