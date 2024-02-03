@@ -33,7 +33,7 @@ stock_info = stock_info[(stock_info["date"] == "2024-02-01") & #
                         (stock_info["industry_category"] != "ETN")]
 stock_list = pd.unique(stock_info["stock_id"])#unique撈取條件下的股票,且不讓股票代號重複
 rename_dict = {
-    "Trading_Volume" : "volume",
+    "Trading_Volume" : "Volume",
     "open" : "Open",
     "max" : "High",
     "min" : "Low",
