@@ -114,6 +114,7 @@ def proc_KPI(record_df, origin_cash, fee_rate, tax_rate):
     MDD = 0  # 最大回落
 
     for i in trade_df["累計金額"]:
+        print("i=",i)
         if i > peak:
             peak = i
         diff = (peak - i) / peak
