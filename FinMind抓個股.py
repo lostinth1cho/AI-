@@ -13,6 +13,7 @@ from FinMind.data import DataLoader
 import pandas as pd
 from datetime import datetime
 from os import listdir
+import requests, time
 #另一個list為抓出來的資料
 catched_stock_list = listdir("FINMIND資料/")
 
@@ -20,14 +21,14 @@ catched_stock_list = listdir("FINMIND資料/")
 #Finmind資料抓取
 api = DataLoader()
 # api.login_by_token(api_token='token')
-api.login(user_id='nkust_finmind7@gmail.com',
-          password='nkust_finmind7@gmail.com')
+api.login(user_id='nkust_finmind5@gmail.com',
+          password='nkust_finmind5@gmail.com')
 
 #TaiwanStockInfo為台股總覽
 #取得指定時間的所有股票代號
 stock_info = api.taiwan_stock_info()
 
-stock_info = stock_info[(stock_info["date"] == "2024-02-01") & #
+stock_info = stock_info[(stock_info["date"] == "2024-02-05") & #
                         (stock_info["type"] == "twse") &
                         (stock_info["industry_category"] != "ETF")&
                         (stock_info["industry_category"] != "ETN")]
@@ -52,9 +53,12 @@ for s_id in stock_list:
     )
     if stock_data.shape[0] < 100: #資料筆數小於100筆的
         continue
+    if len(s_id) != 4 :
+        continue
     print(s_id,datetime.now(),stock_data.shape) 
 
     stock_data = stock_data.drop(["stock_id"],axis = 1)#不重複下載股票
     stock_data = stock_data.rename(columns = rename_dict)
     
     stock_data.to_excel(f"FINMIND資料/{s_id}.xlsx",index = False)
+    time.sleep(6)
