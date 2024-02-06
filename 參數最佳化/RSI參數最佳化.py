@@ -70,8 +70,7 @@ class trade_problem(Problem):
 
             KPI_dict = proc_KPI(concated_record_df,
                                 cash, fee_rate, tax_rate)
-            print("stock_idstock_idstock_idstock_id", stock_id)
-            print("KPI_dictKPI_dictKPI_dictKPI_dict", KPI_dict)
+            
             # 從績效指標取出適應值
             f1 = KPI_dict["累計報酬率"]
             f2 = KPI_dict["帳戶淨值MDD"]
@@ -180,8 +179,7 @@ def main(PS, NGEN, CXPB, MUTPB):
         # 計算績效指標
         KPI_dict = proc_KPI(concated_record_df,
                             cash, fee_rate, tax_rate)
-        print("stock_idstock_idstock_idstock_id", stock_id)
-        print("KPI_dictKPI_dictKPI_dictKPI_dict", KPI_dict)
+        
         # 紀錄測試集結果
         result_df.at[index, "測試集交易次數"] = KPI_dict["交易次數"]
         result_df.at[index, "測試集累計報酬率"] = KPI_dict["累計報酬率"]
@@ -207,7 +205,9 @@ for s_id in catched_stock_list:
     # 只取"股票代號"
     stock_id: str = s_id[0]
     df = get_data(stock_id=stock_id)
-
+    # 個股的資料筆數少於1000的就跳過此迴圈
+    if df.shape[0] < 1000:
+        continue
     df["成交價格"] = df["開盤價"].shift(-1)
     df = df.dropna()  # 刪除空值
     # 分割訓練 測試
